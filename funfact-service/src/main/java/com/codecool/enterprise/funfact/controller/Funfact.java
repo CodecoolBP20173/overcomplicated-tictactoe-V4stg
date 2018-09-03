@@ -3,6 +3,7 @@ package com.codecool.enterprise.funfact.controller;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -23,7 +24,10 @@ public class Funfact {
             "Chuck Norris wrote this JSON."
     };
 
-    @GetMapping("/random")
+    @RequestMapping(
+            value = "/random",
+            method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public String getRandom() {
         try {
             HttpHeaders headers = new HttpHeaders();

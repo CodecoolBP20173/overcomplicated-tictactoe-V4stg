@@ -17,6 +17,7 @@ import java.util.Map;
 public class GameController {
 
     private JacksonJsonParser jacksonJsonParser = new JacksonJsonParser();
+    private RestTemplate restTemplate = new RestTemplate();
 
     @ModelAttribute("player")
     public Player getPlayer() {
@@ -30,7 +31,12 @@ public class GameController {
 
     @ModelAttribute("avatar_uri")
     public String getAvatarUri() {
-        return "https://robohash.org/codecool";
+        String uri = String.format("http://localhost:60003/api/avatar/%s", getPlayer().getUserId());
+        String avatarJSON = restTemplate.getForObject(uri, String.class);
+
+        Map<String, Object> avatarMap = jacksonJsonParser.parseMap(avatarJSON);
+
+        return avatarMap.get("img").toString();
     }
 
     @GetMapping(value = "/")
@@ -45,7 +51,6 @@ public class GameController {
 
     @GetMapping(value = "/game")
     public String gameView(@ModelAttribute("player") Player player, Model model) {
-        final RestTemplate restTemplate = new RestTemplate();
 
         String funfactJSON = restTemplate.getForObject("http://localhost:60001/api/random", String.class);
         String comicJSON = restTemplate.getForObject("http://localhost:60002/api/random", String.class);
@@ -54,12 +59,7 @@ public class GameController {
         String funfact = funfactMap.get("value").toString();
 
         Map<String, Object> comicMap = jacksonJsonParser.parseMap(comicJSON);
-        String comicUrl = "";
-        try {
-            comicUrl = comicMap.get("img").toString();
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
+        String comicUrl = comicMap.get("img").toString();
 
         model.addAttribute("comic_uri", comicUrl);
         model.addAttribute("funfact", funfact);
