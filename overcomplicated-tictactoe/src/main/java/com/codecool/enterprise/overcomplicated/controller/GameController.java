@@ -16,6 +16,8 @@ import java.util.Map;
 @SessionAttributes({"player", "game"})
 public class GameController {
 
+    private JacksonJsonParser jacksonJsonParser = new JacksonJsonParser();
+
     @ModelAttribute("player")
     public Player getPlayer() {
         return new Player();
@@ -45,14 +47,22 @@ public class GameController {
     public String gameView(@ModelAttribute("player") Player player, Model model) {
         final RestTemplate restTemplate = new RestTemplate();
 
-        String result = restTemplate.getForObject("http://localhost:60001/api/random", String.class);
+        String funfactJSON = restTemplate.getForObject("http://localhost:60001/api/random", String.class);
+        String comicJSON = restTemplate.getForObject("http://localhost:60002/api/random", String.class);
 
-        JacksonJsonParser jacksonJsonParser = new JacksonJsonParser();
-        Map<String, Object> funfactMap = jacksonJsonParser.parseMap(result);
+        Map<String, Object> funfactMap = jacksonJsonParser.parseMap(funfactJSON);
         String funfact = funfactMap.get("value").toString();
 
+        Map<String, Object> comicMap = jacksonJsonParser.parseMap(comicJSON);
+        String comicUrl = "";
+        try {
+            comicUrl = comicMap.get("img").toString();
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+
+        model.addAttribute("comic_uri", comicUrl);
         model.addAttribute("funfact", funfact);
-        model.addAttribute("comic_uri", "https://imgs.xkcd.com/comics/bad_code.png");
         return "game";
     }
 
