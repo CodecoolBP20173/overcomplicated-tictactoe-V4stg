@@ -46,37 +46,19 @@
         <div class="row">
             <div class="col-xs-12 col-sm-6 col-sm-offset-3">
                 <div class="container-fluid game-container">
-                    <div class="row">
-                        <div class="col-xs-4">
-                            <a href="/game-move?move=0" class="btn btn-default square">&nbsp;</a>
-                        </div>
-                        <div class="col-xs-4">
-                            <a href="/game-move?move=1" class="btn btn-default square"><i class="fa fa-circle-o" aria-hidden="true"></i></a>
-                        </div>
-                        <div class="col-xs-4">
-                            <a href="/game-move?move=2" class="btn btn-default square"><i class="fa fa-times" aria-hidden="true"></i></a>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-4">
-                            <a href="/game-move?move=3" class="btn btn-default square">&nbsp;</a>
-                        </div>
-                        <div class="col-xs-4">
-                            <a href="/game-move?move=4" class="btn btn-default square">&nbsp;</a>
-                        </div>
-                        <div class="col-xs-4">
-                            <a href="/game-move?move=5" class="btn btn-default square">&nbsp;</a>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-4">
-                            <a href="/game-move?move=6" class="btn btn-default square">&nbsp;</a>
-                        </div>
-                        <div class="col-xs-4">
-                            <a href="/game-move?move=7" class="btn btn-default square">&nbsp;</a>
-                        </div>
-                        <div class="col-xs-4">
-                            <a href="/game-move?move=8" class="btn btn-default square">&nbsp;</a>
+                    <div class="row" th:each="row, rowNum : ${table}">
+                        <div class="col-xs-4" th:each="cell, cellNum : ${row}">
+                            <a th:with="result=${rowNum.index} * 3 + ${cellNum.index}"
+                               th:href="${cell} == '-' ? @{/game-move(move=${result})} : '#'"
+                               class="btn btn-default square"
+                               th:disabled="${cell} == '-' ? false : true">
+
+                                <th:block th:switch="${cell}">
+                                    <span th:case="'-'">&nbsp;</span>
+                                    <i th:case="'O'" class="fa fa-circle-o" aria-hidden="true"></i>
+                                    <i th:case="'X'" class="fa fa-times" aria-hidden="true"></i>
+                                </th:block>
+                            </a>
                         </div>
                     </div>
                 </div>
