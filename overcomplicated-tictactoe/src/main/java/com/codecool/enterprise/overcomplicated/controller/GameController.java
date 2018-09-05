@@ -2,15 +2,17 @@ package com.codecool.enterprise.overcomplicated.controller;
 
 import com.codecool.enterprise.overcomplicated.model.Player;
 import com.codecool.enterprise.overcomplicated.model.TictactoeGame;
+import com.codecool.enterprise.overcomplicated.service.Converter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.json.JacksonJsonParser;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 @Controller
@@ -19,7 +21,8 @@ public class GameController {
 
     private JacksonJsonParser jacksonJsonParser = new JacksonJsonParser();
     private RestTemplate restTemplate = new RestTemplate();
-    private String[][] gameState = {{"-", "-", "-"}, {"-", "-", "-"}, {"-", "-", "-"}};
+    private char[][] board = {{'-', '-', '-'}, {'-', '-', '-'}, {'-', '-', '-'}};
+    private String outcome;
 
     @ModelAttribute("player")
     public Player getPlayer() {
@@ -42,7 +45,7 @@ public class GameController {
             return avatarMap.get("img").toString();
 
         } catch (ResourceAccessException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             return "http://asianinteriorservices.com/wp-content/uploads/2018/04/noImg.png";
         }
     }
@@ -68,7 +71,7 @@ public class GameController {
             funfact = funfactMap.get("value").toString();
 
         } catch (ResourceAccessException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             funfact = "Chuck is currently not accessible. Please leave a message!";
         }
 
@@ -79,23 +82,41 @@ public class GameController {
             Map<String, Object> comicMap = jacksonJsonParser.parseMap(comicJSON);
             comicUrl = comicMap.get("img").toString();
         } catch (ResourceAccessException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             comicUrl = "http://asianinteriorservices.com/wp-content/uploads/2018/04/noImg.png";
         }
 
         model.addAttribute("funfact", funfact);
         model.addAttribute("comic_uri", comicUrl);
 
-        model.addAttribute("table", gameState);
+        model.addAttribute("board", board);
+        model.addAttribute("outcome", outcome);
         return "game";
     }
 
     @GetMapping(value = "/game-move")
     public String gameMove(@ModelAttribute("player") Player player, @ModelAttribute("move") int move) {
-        String icon = "O";
+        String playerIcon = "O";
 
-        String url = String.format("http://localhost:60004/player/%s/%s", move, icon);
-        String gameJSON = restTemplate.getForObject(url, String.class);
+        String url = String.format("http://localhost:60004/api/player/%s/%s/%s",
+                Converter.getString(board), move, playerIcon);
+
+        try {
+            String response = restTemplate.getForObject(url, String.class);
+            HashMap resultMap = new ObjectMapper().readValue(response, HashMap.class);
+
+            String gameStr = (String) resultMap.get("board");
+            outcome = (String) resultMap.get("outcome");
+
+            char[] game = gameStr.toCharArray();
+
+            for (int i = 0; i < 3; i++) {
+                System.arraycopy(game, i * 3, board[i], 0, 3);
+            }
+
+        } catch (ResourceAccessException | IOException e) {
+            e.printStackTrace();
+        }
 
         return "redirect:/game";
     }

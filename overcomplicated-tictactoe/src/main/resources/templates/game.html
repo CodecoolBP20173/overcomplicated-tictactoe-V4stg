@@ -46,12 +46,15 @@
         <div class="row">
             <div class="col-xs-12 col-sm-6 col-sm-offset-3">
                 <div class="container-fluid game-container">
-                    <div class="row" th:each="row, rowNum : ${table}">
+                    <div class="row" th:each="row, rowNum : ${board}">
                         <div class="col-xs-4" th:each="cell, cellNum : ${row}">
                             <a th:with="result=${rowNum.index} * 3 + ${cellNum.index}"
                                th:href="${cell} == '-' ? @{/game-move(move=${result})} : '#'"
                                class="btn btn-default square"
-                               th:disabled="${cell} == '-' ? false : true">
+                               th:disabled="(${outcome} == null ?
+                               (${cell} == '-' ? false : true) :
+                               true)"
+                            >
 
                                 <th:block th:switch="${cell}">
                                     <span th:case="'-'">&nbsp;</span>
