@@ -120,4 +120,13 @@ public class GameController {
 
         return "redirect:/game";
     }
+
+    @GetMapping(value = "/new-game")
+    public String newGame() {
+
+        board = new char[][]{{'-', '-', '-'}, {'-', '-', '-'}, {'-', '-', '-'}};
+        outcome = null;
+
+        return "redirect:/game";
+    }
 }

@@ -46,10 +46,17 @@
         <div class="row">
             <div class="col-xs-12 col-sm-6 col-sm-offset-3">
                 <div class="container-fluid game-container">
+                    <div th:if="${outcome}">
+                        <a href="/new-game">
+                            <h1 class="media-heading" th:text="${outcome}"></h1>
+                        </a>
+                    </div>
                     <div class="row" th:each="row, rowNum : ${board}">
                         <div class="col-xs-4" th:each="cell, cellNum : ${row}">
                             <a th:with="result=${rowNum.index} * 3 + ${cellNum.index}"
-                               th:href="${cell} == '-' ? @{/game-move(move=${result})} : '#'"
+                               th:href="(${outcome} == null ?
+                               (${cell} == '-' ? @{/game-move(move=${result})} : '#') :
+                               '#')"
                                class="btn btn-default square"
                                th:disabled="(${outcome} == null ?
                                (${cell} == '-' ? false : true) :
